@@ -280,7 +280,7 @@ Customer intelligence (segments, churn, live customer lookup): [screenshot](docs
 
 **Option A — full platform (Docker, ~8 GB RAM):**
 ```bash
-git clone <this repo> && cd FinGuard
+git clone <this repo> && cd FinGuardAi
 make up          # infrastructure: Kafka, Postgres, Redis, S3 (SeaweedFS), MLflow, Prometheus
 make pipeline    # data → DQ → lake → warehouse → features → models → registry → dbt → Redis
 make apps        # API, streaming risk engine, Spark streaming, dashboard
