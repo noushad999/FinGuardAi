@@ -1,0 +1,32 @@
+# Business decision policy for the real-time risk engine.
+#
+# This file is deliberately separate from the models: models output
+# probabilities, this policy turns them into APPROVE / REVIEW / BLOCK.
+# Risk/fraud operations can change it without retraining or redeploying a model.
+#
+# risk_score = round(100 * max(fraud_probability, account_takeover_probability))
+
+version: "policy-v1"
+
+thresholds:
+  # risk_score < review            -> LOW    -> APPROVE
+  # review <= risk_score < block   -> MEDIUM -> REVIEW
+  # risk_score >= block            -> HIGH   -> BLOCK
+  # Chosen from reports/threshold_analysis.md (validation period, mature labels):
+  # review = lowest score with validation precision >= 0.80,
+  # block  = lowest score with validation precision >= 0.925.
+  review: 30
+  block: 90
+
+# Deterministic rules that can only *raise* the decision, never lower it.
+rules:
+  # Unsupervised anomaly score percentile (vs. training reference) above which
+  # an otherwise-approved transaction is routed to manual review.
+  anomaly_review_percentile: 99.9
+  # Hard ceiling for a single transaction (BDT) before step-up review.
+  max_single_amount: 500000
+  # Burst guard: more than N attempts in 60 s -> review.
+  max_txn_per_minute: 8
+
+# How many human-readable reasons to return.
+max_reasons: 4

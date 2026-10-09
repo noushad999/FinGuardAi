@@ -1,0 +1,12 @@
+finguard:
+  target: default
+  outputs:
+    default:
+      type: postgres
+      host: "{{ env_var('DBT_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_USER', 'finguard') }}"
+      password: "{{ env_var('DBT_PASSWORD', 'finguard') }}"
+      dbname: "{{ env_var('DBT_DBNAME', 'finguard') }}"
+      schema: analytics
+      threads: 4

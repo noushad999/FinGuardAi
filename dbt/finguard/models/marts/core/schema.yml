@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: Customer dimension (SCD1) enriched with segment, churn, graph and risk profile.
+    columns:
+      - name: customer_id
+        description: Natural key issued by the wallet platform (PK).
+        tests: [unique, not_null]
+      - name: location_key
+        tests:
+          - relationships:
+              arguments:
+                to: "ref('dim_location')"
+                field: location_key
+  - name: dim_device
+    columns:
+      - name: device_id
+        tests: [unique, not_null]
+  - name: dim_merchant
+    columns:
+      - name: merchant_id
+        tests: [unique, not_null]
+      - name: merchant_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['merchant', 'cash_agent', 'biller', 'telecom_operator', 'bank']
+  - name: dim_date
+    columns:
+      - name: date_key
+        tests: [unique, not_null]
+  - name: dim_location
+    columns:
+      - name: location_key
+        tests: [unique, not_null]
+  - name: fact_transactions
+    description: "Grain: one row per transaction attempt."
+    columns:
+      - name: transaction_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: "ref('dim_customer')"
+                field: customer_id
+      - name: device_id
+        tests:
+          - relationships:
+              arguments:
+                to: "ref('dim_device')"
+                field: device_id
+      - name: merchant_id
+        tests:
+          - relationships:
+              arguments:
+                to: "ref('dim_merchant')"
+                field: merchant_id
+      - name: date_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: "ref('dim_date')"
+                field: date_key
+      - name: location_key
+        tests:
+          - relationships:
+              arguments:
+                to: "ref('dim_location')"
+                field: location_key
+  - name: fact_fraud_predictions
+    description: "Grain: one row per (transaction, prediction source, model version)."
+    columns:
+      - name: prediction_key
+        tests: [unique, not_null]
+      - name: transaction_id
+        tests:
+          - relationships:
+              arguments:
+                to: "ref('fact_transactions')"
+                field: transaction_id
+      - name: decision
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['APPROVE', 'REVIEW', 'BLOCK']
+  - name: fact_customer_activity
+    description: "Grain: one row per customer per local day."
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [customer_id, date_key]

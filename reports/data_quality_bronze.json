@@ -1,0 +1,160 @@
+{
+  "dataset": "bronze",
+  "run_at": "2026-09-27T09:40:10.812638+00:00",
+  "rows": 21399,
+  "passed": false,
+  "errors_failed": 1,
+  "warnings_failed": 0,
+  "checks": [
+    {
+      "name": "schema_drift",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "Columns and types match the transaction contract",
+      "sample": []
+    },
+    {
+      "name": "required_not_null",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "No nulls in transaction_id, event_time, customer_id, amount, transaction_type, status",
+      "sample": []
+    },
+    {
+      "name": "merchant_id_present_for_merchant_payments",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "Merchant payments reference a merchant",
+      "sample": []
+    },
+    {
+      "name": "failure_reason_iff_failed",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "failure_reason is set exactly for FAILED transactions",
+      "sample": []
+    },
+    {
+      "name": "duplicate_transaction_id",
+      "severity": "error",
+      "passed": false,
+      "failing_rows": 217,
+      "description": "transaction_id is unique",
+      "sample": [
+        "TXN00000080043",
+        "TXN00000080093",
+        "TXN00000080602",
+        "TXN00000080291",
+        "TXN00000080051"
+      ]
+    },
+    {
+      "name": "suspected_duplicate_submission",
+      "severity": "warning",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "Same customer/time/amount/receiver/type under different transaction ids",
+      "sample": []
+    },
+    {
+      "name": "invalid_amount",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "0 < amount <= 10,000,000 BDT",
+      "sample": []
+    },
+    {
+      "name": "invalid_timestamp",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "event_time parseable, not in the future, not before platform launch",
+      "sample": []
+    },
+    {
+      "name": "invalid_enumeration",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "transaction_type / channel / status / failure_reason in allowed sets",
+      "sample": []
+    },
+    {
+      "name": "invalid_customer_id_format",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "customer_id matches CUS_#######",
+      "sample": []
+    },
+    {
+      "name": "geo_out_of_bounds",
+      "severity": "warning",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "Coordinates inside Bangladesh bounding box",
+      "sample": []
+    },
+    {
+      "name": "negative_balance",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "Balances are never negative",
+      "sample": []
+    },
+    {
+      "name": "ledger_arithmetic",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "balance_after = balance_before -/+ amount (- fee); unchanged when failed",
+      "sample": []
+    },
+    {
+      "name": "unknown_customer",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "customer_id exists in customers",
+      "sample": []
+    },
+    {
+      "name": "unknown_p2p_receiver",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "P2P receivers exist in customers",
+      "sample": []
+    },
+    {
+      "name": "transaction_before_registration",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "No activity before customer registration",
+      "sample": []
+    },
+    {
+      "name": "unknown_device",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "device_id exists in devices",
+      "sample": []
+    },
+    {
+      "name": "unknown_merchant",
+      "severity": "error",
+      "passed": true,
+      "failing_rows": 0,
+      "description": "merchant_id exists in merchants",
+      "sample": []
+    }
+  ]
+}

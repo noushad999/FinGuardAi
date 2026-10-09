@@ -1,0 +1,275 @@
+# FinGuard local platform.
+#
+#   make up         -> infrastructure + bootstrap (Postgres, Redis, Kafka, SeaweedFS S3, MLflow, Prometheus)
+#   make pipeline   -> generate data, train, register, load warehouse, dbt, hydrate Redis
+#   make apps       -> API, streaming risk engine, Spark streaming, dashboard
+#   make replay     -> stream the test period through Kafka
+#   make airflow    -> Airflow (optional profile)
+#
+# Only services that the architecture needs are included; see docs/deployment.md.
+
+x-app: &app
+  image: finguard-app:latest
+  build:
+    context: .
+    dockerfile: docker/app.Dockerfile
+    secrets: [extra_ca]
+  env_file: .env
+  environment: &app-env
+    DATABASE_URL: postgresql+psycopg2://finguard:finguard@postgres:5432/finguard
+    REDIS_URL: redis://redis:6379/0
+    KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    LAKE_URI: s3://finguard-lake
+    S3_ENDPOINT: http://seaweedfs:8333
+    MLFLOW_TRACKING_URI: http://mlflow:5000
+    DBT_HOST: postgres
+    LOG_FORMAT: json
+    OMP_NUM_THREADS: "1"   # single-row inference; parallelism comes from processes/partitions
+  volumes:
+    - ./data:/app/data
+    - ./models:/app/models
+    - ./reports:/app/reports
+  user: "${UID:-1000}:${GID:-1000}"
+
+services:
+  # ------------------------------------------------------------------ infrastructure
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: finguard
+      POSTGRES_PASSWORD: finguard
+      POSTGRES_DB: finguard
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finguard -d finguard"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports: ["6379:6379"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  kafka:
+    image: apache/kafka:3.9.1
+    ports: ["9094:9094"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller           # KRaft mode: no ZooKeeper
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_HEAP_OPTS: "-Xmx768m -Xms256m"
+    volumes: [kafkadata:/var/lib/kafka/data]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+
+  seaweedfs:
+    # S3-compatible object storage for the data lake and MLflow artifacts.
+    image: chrislusf/seaweedfs:latest
+    command: ["server", "-dir=/data", "-s3", "-s3.port=8333", "-s3.config=/etc/seaweedfs/s3.json",
+              "-master.volumeSizeLimitMB=256", "-volume.max=0", "-ip.bind=0.0.0.0"]
+    ports: ["8333:8333"]
+    volumes:
+      - s3data:/data
+      - ./docker/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8333/status || wget -q -S -O /dev/null http://localhost:8333/ 2>&1 | grep -q 'HTTP/'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  bootstrap:
+    <<: *app
+    command: ["python", "-m", "scripts.bootstrap"]
+    restart: "no"
+    depends_on:
+      postgres: {condition: service_healthy}
+      kafka: {condition: service_healthy}
+      seaweedfs: {condition: service_healthy}
+
+  mlflow:
+    <<: *app
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri postgresql+psycopg2://finguard:finguard@postgres:5432/mlflow
+      --artifacts-destination s3://mlflow --serve-artifacts
+      --allowed-hosts "mlflow,mlflow:5000,localhost,localhost:5000,127.0.0.1,127.0.0.1:5000"
+    environment:
+      <<: *app-env
+      MLFLOW_S3_ENDPOINT_URL: http://seaweedfs:8333
+      AWS_ACCESS_KEY_ID: finguard
+      AWS_SECRET_ACCESS_KEY: finguard-secret
+    ports: ["5000:5000"]
+    depends_on:
+      bootstrap: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports: ["9090:9090"]
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+
+  # ------------------------------------------------------------------ batch pipeline (one-shot)
+  pipeline:
+    <<: *app
+    profiles: ["pipeline"]
+    command: ["bash", "scripts/run_pipeline.sh"]
+    restart: "no"
+    depends_on:
+      mlflow: {condition: service_healthy}
+      redis: {condition: service_healthy}
+
+  # ------------------------------------------------------------------ applications
+  api:
+    <<: *app
+    profiles: ["apps"]
+    command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+    ports: ["8000:8000"]
+    restart: unless-stopped
+    depends_on:
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  risk-engine:
+    <<: *app
+    profiles: ["apps"]
+    command: ["python", "-m", "services.risk_engine.worker"]
+    environment:
+      <<: *app-env
+      METRICS_PORT: "9102"
+    ports: ["9102:9102"]
+    restart: unless-stopped
+    depends_on:
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+      kafka: {condition: service_healthy}
+
+  spark-streaming:
+    image: finguard-spark:latest
+    build:
+      context: .
+      dockerfile: docker/spark.Dockerfile
+      secrets: [extra_ca]
+    profiles: ["apps"]
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LAKE_URI: s3://finguard-lake
+      S3_ENDPOINT: http://seaweedfs:8333
+      S3_ACCESS_KEY: finguard
+      S3_SECRET_KEY: finguard-secret
+      POSTGRES_HOST: postgres
+      STREAM_TRIGGER: "15 seconds"
+    restart: unless-stopped
+    depends_on:
+      kafka: {condition: service_healthy}
+      seaweedfs: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+
+  dashboard:
+    <<: *app
+    profiles: ["apps"]
+    command: ["streamlit", "run", "dashboards/app.py", "--server.port", "8501", "--server.address", "0.0.0.0",
+              "--server.headless", "true", "--browser.gatherUsageStats", "false"]
+    environment:
+      <<: *app-env
+      API_URL: http://api:8000
+      PROMETHEUS_URL: http://prometheus:9090
+      HOME: /tmp
+    ports: ["8501:8501"]
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+
+  # ------------------------------------------------------------------ streaming replay (one-shot)
+  producer:
+    <<: *app
+    profiles: ["replay"]
+    command: ["python", "-m", "ingestion.kafka_producer", "--from-split", "test", "--rate", "${REPLAY_RATE:-250}",
+              "--duplicate-rate", "0.01", "--invalid-rate", "0.005", "--late-rate", "0.005"]
+    restart: "no"
+    depends_on:
+      kafka: {condition: service_healthy}
+
+  # ------------------------------------------------------------------ orchestration (optional)
+  airflow:
+    image: finguard-airflow:latest
+    build:
+      context: .
+      dockerfile: docker/airflow.Dockerfile
+      secrets: [extra_ca]
+    profiles: ["airflow"]
+    command: ["standalone"]
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://finguard:finguard@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/finguard/airflow/dags
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "false"
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin
+      DATABASE_URL: postgresql+psycopg2://finguard:finguard@postgres:5432/finguard
+      REDIS_URL: redis://redis:6379/0
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LAKE_URI: s3://finguard-lake
+      S3_ENDPOINT: http://seaweedfs:8333
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      DBT_HOST: postgres
+      DATA_DIR: /opt/finguard/data
+      SYNTHETIC_DIR: /opt/finguard/data/synthetic
+      PROCESSED_DIR: /opt/finguard/data/processed
+      MODELS_DIR: /opt/finguard/models
+      REPORTS_DIR: /opt/finguard/reports
+    ports: ["8080:8080"]
+    volumes:
+      - ./data:/opt/finguard/data
+      - ./models:/opt/finguard/models
+      - ./reports:/opt/finguard/reports
+      - ./airflow/dags:/opt/finguard/airflow/dags
+    user: "${UID:-1000}:0"
+    depends_on:
+      postgres: {condition: service_healthy}
+      mlflow: {condition: service_healthy}
+
+secrets:
+  # Optional CA bundle for image builds behind a TLS-intercepting proxy; empty file by default.
+  extra_ca:
+    file: ${EXTRA_CA_CERT:-./docker/empty-ca.pem}
+
+volumes:
+  pgdata:
+  redisdata:
+  kafkadata:
+  s3data:

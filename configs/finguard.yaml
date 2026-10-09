@@ -1,0 +1,128 @@
+# FinGuard main configuration.
+# Every value here can be overridden with an environment variable using the
+# FINGUARD__<SECTION>__<KEY> convention (see common/config.py), and a handful of
+# frequently-changed values have short aliases (DATASET_SIZE, KAFKA_BOOTSTRAP_SERVERS, ...).
+
+paths:
+  data_dir: data
+  synthetic_dir: data/synthetic
+  processed_dir: data/processed
+  models_dir: models
+  reports_dir: reports
+
+simulation:
+  seed: 42
+  # Scale presets: small=100_000, medium=1_000_000, large=10_000_000.
+  # DATASET_SIZE=<int|small|medium|large> overrides this.
+  n_transactions: 100000
+  # Average number of transactions per customer over the simulated period.
+  # n_customers = n_transactions / transactions_per_customer.
+  transactions_per_customer: 40
+  start_date: "2026-01-01"
+  days: 180
+  # Local time zone of the simulated market (Bangladesh Standard Time, no DST).
+  local_utc_offset_hours: 6
+  # Share of *transactions* that are part of an injected fraud case (ground truth).
+  target_fraud_rate: 0.012
+  # Share of customers that are money-mule accounts.
+  mule_fraction: 0.012
+  # Regulatory-style single transaction threshold used by the structuring scenario.
+  structuring_threshold: 25000
+  # Fraud reports ("labels") arrive after the fact.
+  label_delay_median_days: 6
+  label_never_reported_rate: 0.05
+  scenario_weights:
+    velocity_attack: 1.0
+    sudden_high_value: 1.0
+    new_device_high_value: 1.0
+    impossible_travel: 0.8
+    device_sharing_ring: 0.8
+    suspicious_merchant: 1.0
+    rapid_fund_movement: 1.0
+    structuring: 0.8
+    mule_collection: 1.0
+    failed_auth_then_success: 1.0
+    unusual_recipient_scam: 1.2
+    abnormal_nighttime: 0.8
+
+features:
+  # Rolling windows (seconds) used by the online/offline feature engine.
+  windows_seconds: [60, 300, 3600, 86400]
+  # Recent-event buffer kept per customer (must cover the largest window).
+  max_window_seconds: 86400
+  # Caps on per-entity memory in the online store.
+  max_known_recipients: 300
+  max_known_devices: 20
+
+training:
+  # Time-based split on transaction event time (fractions of the simulated period).
+  train_fraction: 0.6
+  validation_fraction: 0.2
+  # Fraud labels arrive late. The model is (re)built at the end of the validation
+  # period ("now") and only sees labels reported before "now". Validation rows
+  # younger than the label-maturity window are excluded from early stopping,
+  # calibration and threshold selection because many of their frauds are not
+  # reported yet (they would bias precision downwards).
+  respect_label_delay: true
+  label_maturity_days: 21
+  random_state: 42
+  xgb:
+    n_estimators: 600
+    max_depth: 5
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    min_child_weight: 3
+    early_stopping_rounds: 50
+  isolation_forest:
+    # 100 trees (the original paper's default) keeps single-row online scoring ~5 ms.
+    n_estimators: 100
+    contamination: auto
+    max_samples: 4096
+  # Precision target used to *suggest* a review threshold; the business policy
+  # (configs/policy.yaml) remains the source of truth.
+  target_precision: 0.8
+
+churn:
+  inactivity_days: 30
+  lookback_days: 60
+  min_successful_txns_in_lookback: 3
+  snapshot_every_days: 15
+
+segmentation:
+  # Marketing needs 5-8 actionable segments; silhouette picks k inside this range.
+  k_range: [5, 8]
+  window_days: 90
+
+kafka:
+  bootstrap_servers: localhost:9094
+  topics:
+    transactions: fg.transactions
+    customers: fg.customers
+    devices: fg.devices
+    alerts: fg.alerts
+    dead_letter: fg.transactions.dlq
+  consumer_group: finguard-risk-engine
+  producer_rate_per_sec: 200
+
+storage:
+  # Local path or s3://bucket/prefix. s3 uses the S3-compatible endpoint below.
+  lake_uri: data/lake
+  s3_endpoint: http://localhost:8333
+  s3_access_key: finguard
+  s3_secret_key: finguard-secret
+  s3_region: us-east-1
+
+database:
+  url: postgresql+psycopg2://finguard:finguard@localhost:5432/finguard
+
+redis:
+  url: ""   # empty -> in-process state store (tests / single-process demo)
+
+mlflow:
+  tracking_uri: ""   # empty -> sqlite:///mlruns/mlflow.db (local)
+  experiment: finguard
+
+api:
+  model_source: local   # local | mlflow
+  commit_state_on_score: false

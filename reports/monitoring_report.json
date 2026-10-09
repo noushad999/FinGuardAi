@@ -1,0 +1,196 @@
+{
+  "generated_at": "2026-09-27T09:39:01.547729+00:00",
+  "model_version": "fraud-xgb-v3",
+  "source": "ops.risk_decisions",
+  "rows": 21182,
+  "feature_drift": {
+    "significant": [
+      "amount_std_hist",
+      "district_frequency"
+    ],
+    "moderate": [
+      "failed_ratio_hist",
+      "hour_frequency"
+    ],
+    "cumulative_features_shifted": [
+      "n_prior_txns",
+      "sender_out_degree",
+      "merchant_txn_count",
+      "device_txn_count",
+      "merchant_unique_customers",
+      "customer_device_count",
+      "receiver_in_degree",
+      "receiver_n_prior_txns"
+    ],
+    "top": [
+      {
+        "feature": "n_prior_txns",
+        "psi": 1.1999095111281097,
+        "status": "significant",
+        "cumulative": true,
+        "reference_mean": 31.20570466975179,
+        "current_mean": 88.44372580492872
+      },
+      {
+        "feature": "sender_out_degree",
+        "psi": 1.1271045991581243,
+        "status": "significant",
+        "cumulative": true,
+        "reference_mean": 8.214993689524611,
+        "current_mean": 14.963317911434237
+      },
+      {
+        "feature": "merchant_txn_count",
+        "psi": 0.7763666829000209,
+        "status": "significant",
+        "cumulative": true,
+        "reference_mean": 215.5204038704249,
+        "current_mean": 666.160324804079
+      },
+      {
+        "feature": "device_txn_count",
+        "psi": 0.6495093958462742,
+        "status": "significant",
+        "cumulative": true,
+        "reference_mean": 12.983188893563316,
+        "current_mean": 36.755547162685296
+      },
+      {
+        "feature": "merchant_unique_customers",
+        "psi": 0.5790969241370664,
+        "status": "significant",
+        "cumulative": true,
+        "reference_mean": 60.63382414808582,
+        "current_mean": 91.42998772542725
+      },
+      {
+        "feature": "amount_std_hist",
+        "psi": 0.4827923296656987,
+        "status": "significant",
+        "cumulative": false,
+        "reference_mean": 1.2041352167026542,
+        "current_mean": 1.365420158625248
+      },
+      {
+        "feature": "district_frequency",
+        "psi": 0.25707804493974284,
+        "status": "significant",
+        "cumulative": false,
+        "reference_mean": 0.9286316917994956,
+        "current_mean": 0.91555008563875
+      },
+      {
+        "feature": "failed_ratio_hist",
+        "psi": 0.21702421051661622,
+        "status": "moderate",
+        "cumulative": false,
+        "reference_mean": 0.0371342511919159,
+        "current_mean": 0.03546672679633652
+      },
+      {
+        "feature": "customer_device_count",
+        "psi": 0.21464415942798973,
+        "status": "moderate",
+        "cumulative": true,
+        "reference_mean": 1.0797980647875474,
+        "current_mean": 1.2548862241525824
+      },
+      {
+        "feature": "receiver_in_degree",
+        "psi": 0.18921733004943542,
+        "status": "moderate",
+        "cumulative": true,
+        "reference_mean": -0.2886327303323517,
+        "current_mean": 0.25408365593428384
+      }
+    ]
+  },
+  "prediction_drift": {
+    "fraud_probability_psi": 8.474792529760178e-05,
+    "status": "stable",
+    "alert_rate": 0.010055707676328959,
+    "mean_fraud_probability": 0.008417229817769805
+  },
+  "performance_by_week": [
+    {
+      "week": "2026-05-18",
+      "transactions": 927,
+      "flagged": 15,
+      "known_fraud": 7,
+      "precision_flagged": 0.4,
+      "recall_flagged": 0.8571428571428571,
+      "pr_auc": 0.27361569756630866,
+      "labels_mature": true
+    },
+    {
+      "week": "2026-05-25",
+      "transactions": 4707,
+      "flagged": 55,
+      "known_fraud": 44,
+      "precision_flagged": 0.7272727272727273,
+      "recall_flagged": 0.9090909090909091,
+      "pr_auc": 0.9012813329160971,
+      "labels_mature": true
+    },
+    {
+      "week": "2026-06-01",
+      "transactions": 4180,
+      "flagged": 36,
+      "known_fraud": 35,
+      "precision_flagged": 0.7222222222222222,
+      "recall_flagged": 0.7428571428571429,
+      "pr_auc": 0.8075859267567923,
+      "labels_mature": true
+    },
+    {
+      "week": "2026-06-08",
+      "transactions": 3559,
+      "flagged": 33,
+      "known_fraud": 30,
+      "precision_flagged": 0.7878787878787878,
+      "recall_flagged": 0.8666666666666667,
+      "pr_auc": 0.9041501279332272,
+      "labels_mature": true
+    },
+    {
+      "week": "2026-06-15",
+      "transactions": 3685,
+      "flagged": 23,
+      "known_fraud": 23,
+      "precision_flagged": 0.6521739130434783,
+      "recall_flagged": 0.6521739130434783,
+      "pr_auc": 0.7806125476091905,
+      "labels_mature": true
+    },
+    {
+      "week": "2026-06-22",
+      "transactions": 3624,
+      "flagged": 29,
+      "known_fraud": 33,
+      "precision_flagged": 0.6551724137931034,
+      "recall_flagged": 0.5757575757575758,
+      "pr_auc": 0.7156476942762829,
+      "labels_mature": true
+    },
+    {
+      "week": "2026-06-29",
+      "transactions": 470,
+      "flagged": 0,
+      "known_fraud": 0,
+      "precision_flagged": null,
+      "recall_flagged": null,
+      "pr_auc": null,
+      "labels_mature": true
+    },
+    {
+      "week": "2026-09-21",
+      "transactions": 30,
+      "flagged": 22,
+      "known_fraud": 0,
+      "precision_flagged": 0.0,
+      "recall_flagged": null,
+      "pr_auc": null,
+      "labels_mature": false
+    }
+  ]
+}

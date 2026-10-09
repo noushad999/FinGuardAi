@@ -1,0 +1,39 @@
+[project]
+name = "finguard"
+version = "1.0.0"
+description = "Real-time AI-powered financial transaction intelligence, fraud detection & customer analytics (synthetic MFS simulation)"
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = [
+    "integration: requires the running Docker stack (FINGUARD_INTEGRATION=1)",
+    "spark: requires pyspark + Java",
+    "ml: trains small models (slower)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+    "ignore::FutureWarning",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["dbt", "notebooks", "streaming/spark_jobs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["B008", "SIM108", "E731", "B905"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B", "SIM"]
+"airflow/dags/*" = ["I001"]
+"ml/common/explain.py" = ["E501"]  # one-line reason templates read best as a table
+
+[tool.ruff.lint.isort]
+known-first-party = ["common", "simulator", "features", "ml", "api", "services", "ingestion", "monitoring",
+                     "data_engineering", "dashboards", "scripts"]

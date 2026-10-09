@@ -1,0 +1,102 @@
+[
+  {
+    "feature": "merchant_age_days",
+    "mean_abs_shap": 1.2401237487792969
+  },
+  {
+    "feature": "receiver_account_age_days",
+    "mean_abs_shap": 0.6651273369789124
+  },
+  {
+    "feature": "amount_to_balance_ratio",
+    "mean_abs_shap": 0.6279692649841309
+  },
+  {
+    "feature": "device_txn_count",
+    "mean_abs_shap": 0.4269714951515198
+  },
+  {
+    "feature": "is_new_recipient",
+    "mean_abs_shap": 0.38500794768333435
+  },
+  {
+    "feature": "receiver_in_degree",
+    "mean_abs_shap": 0.3771733045578003
+  },
+  {
+    "feature": "n_prior_txns",
+    "mean_abs_shap": 0.34917935729026794
+  },
+  {
+    "feature": "distance_from_prev_km",
+    "mean_abs_shap": 0.29414406418800354
+  },
+  {
+    "feature": "hour_local",
+    "mean_abs_shap": 0.2639692425727844
+  },
+  {
+    "feature": "amount",
+    "mean_abs_shap": 0.2523668706417084
+  },
+  {
+    "feature": "log_seconds_since_prev",
+    "mean_abs_shap": 0.24529673159122467
+  },
+  {
+    "feature": "merchant_unique_customers",
+    "mean_abs_shap": 0.24169929325580597
+  },
+  {
+    "feature": "type_cash_out",
+    "mean_abs_shap": 0.22285178303718567
+  },
+  {
+    "feature": "hour_frequency",
+    "mean_abs_shap": 0.19278600811958313
+  },
+  {
+    "feature": "velocity_ratio_24h",
+    "mean_abs_shap": 0.17944639921188354
+  },
+  {
+    "feature": "merchant_risk_level",
+    "mean_abs_shap": 0.17652904987335205
+  },
+  {
+    "feature": "is_new_device",
+    "mean_abs_shap": 0.16351009905338287
+  },
+  {
+    "feature": "receiver_inflow_count_24h",
+    "mean_abs_shap": 0.1538965404033661
+  },
+  {
+    "feature": "is_near_threshold",
+    "mean_abs_shap": 0.13887456059455872
+  },
+  {
+    "feature": "customer_device_count",
+    "mean_abs_shap": 0.1361205130815506
+  },
+  {
+    "feature": "amount_sum_1h",
+    "mean_abs_shap": 0.12818843126296997
+  },
+  {
+    "feature": "receiver_n_prior_txns",
+    "mean_abs_shap": 0.10287126153707504
+  },
+  {
+    "feature": "account_age_days",
+    "mean_abs_shap": 0.08886213600635529
+  },
+  {
+    "feature": "amount_to_avg_ratio",
+    "mean_abs_shap": 0.07581813633441925
+  },
+  {
+    "feature": "log_minutes_since_last_inflow",
+    "mean_abs_shap": 0.07166921347379684
+  }
+]

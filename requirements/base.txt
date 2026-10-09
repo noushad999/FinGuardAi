@@ -1,0 +1,21 @@
+# Runtime dependencies of the FinGuard application (API, risk engine, pipelines, ML).
+numpy==2.4.6
+pandas==3.0.6
+pyarrow==25.0.1
+pydantic==2.13.5
+PyYAML==6.0.3
+scikit-learn==1.9.1
+scipy==1.17.1
+xgboost-cpu==3.2.0
+networkx==3.6.1
+joblib==1.6.0
+mlflow==3.16.1
+boto3==1.43.103
+fastapi==0.141.1
+uvicorn[standard]==0.54.0
+httpx==0.28.1
+SQLAlchemy==2.1.1
+psycopg2-binary==2.9.13
+redis==8.1.0
+prometheus-client==0.26.0
+confluent-kafka==2.15.1

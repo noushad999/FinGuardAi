@@ -1,0 +1,150 @@
+{
+  "suggested_review": 30,
+  "suggested_block": 90,
+  "current_policy": {
+    "review": 30,
+    "block": 90
+  },
+  "table": [
+    {
+      "risk_score_threshold": 5,
+      "val_precision": 0.5506607929515418,
+      "val_recall": 0.9541984732824428,
+      "val_alert_rate": 0.028297182747444527,
+      "test_precision": 0.4213075060532688,
+      "test_recall": 0.9405405405405406,
+      "test_alert_rate": 0.01952534039334342,
+      "test_alerts_per_10k": 195.25340393343419
+    },
+    {
+      "risk_score_threshold": 10,
+      "val_precision": 0.6759776536312849,
+      "val_recall": 0.9236641221374046,
+      "val_alert_rate": 0.02231363749688357,
+      "test_precision": 0.5357142857142857,
+      "test_recall": 0.8918918918918919,
+      "test_alert_rate": 0.014561270801815431,
+      "test_alerts_per_10k": 145.6127080181543
+    },
+    {
+      "risk_score_threshold": 15,
+      "val_precision": 0.725609756097561,
+      "val_recall": 0.9083969465648855,
+      "val_alert_rate": 0.020443779606083273,
+      "test_precision": 0.609375,
+      "test_recall": 0.8432432432432433,
+      "test_alert_rate": 0.012102874432677761,
+      "test_alerts_per_10k": 121.02874432677761
+    },
+    {
+      "risk_score_threshold": 20,
+      "val_precision": 0.7677419354838709,
+      "val_recall": 0.9083969465648855,
+      "val_alert_rate": 0.019321864871603093,
+      "test_precision": 0.6535087719298246,
+      "test_recall": 0.8054054054054054,
+      "test_alert_rate": 0.01077912254160363,
+      "test_alerts_per_10k": 107.7912254160363
+    },
+    {
+      "risk_score_threshold": 25,
+      "val_precision": 0.7919463087248322,
+      "val_recall": 0.9007633587786259,
+      "val_alert_rate": 0.018573921715282972,
+      "test_precision": 0.6878048780487804,
+      "test_recall": 0.7621621621621621,
+      "test_alert_rate": 0.009691754916792738,
+      "test_alerts_per_10k": 96.91754916792738
+    },
+    {
+      "risk_score_threshold": 30,
+      "val_precision": 0.8041958041958042,
+      "val_recall": 0.8778625954198473,
+      "val_alert_rate": 0.01782597855896285,
+      "test_precision": 0.7204301075268817,
+      "test_recall": 0.7243243243243244,
+      "test_alert_rate": 0.008793494704992435,
+      "test_alerts_per_10k": 87.93494704992435
+    },
+    {
+      "risk_score_threshold": 40,
+      "val_precision": 0.8208955223880597,
+      "val_recall": 0.8396946564885496,
+      "val_alert_rate": 0.01670406382448267,
+      "test_precision": 0.7898089171974523,
+      "test_recall": 0.6702702702702703,
+      "test_alert_rate": 0.007422465960665658,
+      "test_alerts_per_10k": 74.22465960665657
+    },
+    {
+      "risk_score_threshold": 50,
+      "val_precision": 0.8412698412698413,
+      "val_recall": 0.8091603053435115,
+      "val_alert_rate": 0.015706806282722512,
+      "test_precision": 0.8283582089552238,
+      "test_recall": 0.6,
+      "test_alert_rate": 0.006335098335854766,
+      "test_alerts_per_10k": 63.35098335854766
+    },
+    {
+      "risk_score_threshold": 60,
+      "val_precision": 0.8677685950413223,
+      "val_recall": 0.8015267175572519,
+      "val_alert_rate": 0.015083520319122414,
+      "test_precision": 0.8512396694214877,
+      "test_recall": 0.5567567567567567,
+      "test_alert_rate": 0.005720499243570348,
+      "test_alerts_per_10k": 57.20499243570348
+    },
+    {
+      "risk_score_threshold": 70,
+      "val_precision": 0.8990825688073395,
+      "val_recall": 0.7480916030534351,
+      "val_alert_rate": 0.013587634006482174,
+      "test_precision": 0.875,
+      "test_recall": 0.5297297297297298,
+      "test_alert_rate": 0.00529500756429652,
+      "test_alerts_per_10k": 52.9500756429652
+    },
+    {
+      "risk_score_threshold": 80,
+      "val_precision": 0.9090909090909091,
+      "val_recall": 0.6870229007633588,
+      "val_alert_rate": 0.012341062079281975,
+      "test_precision": 0.9340659340659341,
+      "test_recall": 0.4594594594594595,
+      "test_alert_rate": 0.004302193645990923,
+      "test_alerts_per_10k": 43.021936459909234
+    },
+    {
+      "risk_score_threshold": 85,
+      "val_precision": 0.9010989010989011,
+      "val_recall": 0.6259541984732825,
+      "val_alert_rate": 0.011343804537521814,
+      "test_precision": 0.9871794871794872,
+      "test_recall": 0.41621621621621624,
+      "test_alert_rate": 0.0036875945537065053,
+      "test_alerts_per_10k": 36.87594553706505
+    },
+    {
+      "risk_score_threshold": 90,
+      "val_precision": 0.927710843373494,
+      "val_recall": 0.5877862595419847,
+      "val_alert_rate": 0.010346546995761655,
+      "test_precision": 0.9855072463768116,
+      "test_recall": 0.3675675675675676,
+      "test_alert_rate": 0.003262102874432678,
+      "test_alerts_per_10k": 32.62102874432678
+    },
+    {
+      "risk_score_threshold": 95,
+      "val_precision": 0.9166666666666666,
+      "val_recall": 0.4198473282442748,
+      "val_alert_rate": 0.0074794315632011965,
+      "test_precision": 1.0,
+      "test_recall": 0.24864864864864866,
+      "test_alert_rate": 0.002174735249621785,
+      "test_alerts_per_10k": 21.74735249621785
+    }
+  ]
+}

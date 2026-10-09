@@ -1,0 +1,31 @@
+name: finguard
+version: "1.0.0"
+config-version: 2
+profile: finguard
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Keep in sync with configs/policy.yaml (Airflow/Makefile pass the live values via --vars).
+  review_threshold: 30
+  block_threshold: 90
+
+models:
+  finguard:
+    +schema: analytics
+    staging:
+      +materialized: view
+    marts:
+      core:
+        +materialized: table
+      reporting:
+        +materialized: table
+
+seeds:
+  finguard:
+    +schema: analytics

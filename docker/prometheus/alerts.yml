@@ -1,0 +1,26 @@
+groups:
+  - name: finguard
+    rules:
+      - alert: RiskEngineConsumerLagHigh
+        expr: finguard_kafka_consumer_lag_total > 5000
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: "Risk engine is falling behind Kafka (lag {{ $value }} messages)"
+      - alert: ApiErrorRateHigh
+        expr: sum(rate(finguard_api_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(finguard_api_requests_total[5m])), 1e-9) > 0.02
+        for: 5m
+        labels: {severity: critical}
+        annotations:
+          summary: "API 5xx rate above 2%"
+      - alert: ScoringLatencyP95High
+        expr: histogram_quantile(0.95, sum(rate(finguard_scoring_seconds_bucket[5m])) by (le, source)) > 0.1
+        for: 10m
+        labels: {severity: warning}
+        annotations:
+          summary: "p95 scoring latency above 100 ms ({{ $labels.source }})"
+      - alert: DeadLetterSpike
+        expr: increase(finguard_dlq_messages_total[10m]) > 100
+        labels: {severity: warning}
+        annotations:
+          summary: "More than 100 messages sent to the DLQ in 10 minutes"

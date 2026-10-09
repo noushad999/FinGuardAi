@@ -1,0 +1,27 @@
+{
+  "n_customers": 2500,
+  "true_mules": 30,
+  "mule_score": {
+    "pr_auc": 0.6981310685609738,
+    "roc_auc": 0.9911605937921728,
+    "precision_at_30": 0.6,
+    "recall_at_30": 0.6,
+    "recall_at_60": 0.8333333333333334
+  },
+  "baseline_in_degree_only": {
+    "precision_at_30": 0.7333333333333333,
+    "recall_at_30": 0.7333333333333333
+  },
+  "suspicious_clusters": {
+    "n_clusters": 10,
+    "members": 269,
+    "mule_share_in_suspicious_clusters": 0.11152416356877323,
+    "mule_recall_of_suspicious_clusters": 1.0,
+    "base_mule_rate": 0.012
+  },
+  "graph": {
+    "nodes": 2565,
+    "edges": 8802,
+    "communities": 112
+  }
+}

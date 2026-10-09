@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: finguard-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+  - job_name: finguard-risk-engine
+    static_configs:
+      - targets: ["risk-engine:9102"]
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+rule_files:
+  - /etc/prometheus/alerts.yml

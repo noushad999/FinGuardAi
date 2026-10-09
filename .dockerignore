@@ -1,0 +1,17 @@
+.git
+.venv
+venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+data/
+mlruns/
+models/
+reports/
+logs/
+dbt/finguard/target
+dbt/finguard/logs
+dbt/finguard/dbt_packages
+.env
+notebooks/.ipynb_checkpoints

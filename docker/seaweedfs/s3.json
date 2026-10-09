@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "finguard",
+      "credentials": [{"accessKey": "finguard", "secretKey": "finguard-secret"}],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

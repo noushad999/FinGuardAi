@@ -1,0 +1,70 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Source extracts loaded from the data lake raw zone (batch ETL, full refresh).
+    schema: raw
+    tables:
+      - name: transactions
+        description: One row per transaction attempt (success or failure).
+        columns:
+          - name: transaction_id
+            tests: [unique, not_null]
+          - name: customer_id
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: "source('raw', 'customers')"
+                    field: customer_id
+          - name: amount
+            tests: [not_null]
+          - name: status
+            tests:
+              - accepted_values:
+                  arguments:
+                    values: ['SUCCESS', 'FAILED']
+          - name: transaction_type
+            tests:
+              - accepted_values:
+                  values: ['P2P', 'MERCHANT_PAYMENT', 'CASH_IN', 'CASH_OUT', 'BILL_PAYMENT', 'MOBILE_RECHARGE', 'BANK_TRANSFER']
+      - name: customers
+        columns:
+          - name: customer_id
+            tests: [unique, not_null]
+      - name: merchants
+        columns:
+          - name: merchant_id
+            tests: [unique, not_null]
+      - name: devices
+        columns:
+          - name: device_id
+            tests: [unique, not_null]
+      - name: transaction_labels
+        description: Fraud case-management feed; labels arrive with a delay (fraud_reported_at).
+        columns:
+          - name: transaction_id
+            tests:
+              - unique
+              - relationships:
+                  arguments:
+                    to: "source('raw', 'transactions')"
+                    field: transaction_id
+  - name: ml
+    description: Batch ML outputs written by the ML pipelines.
+    schema: ml
+    tables:
+      - name: transaction_scores
+      - name: customer_segments
+      - name: churn_scores
+      - name: graph_customer_metrics
+      - name: graph_communities
+      - name: customer_profiles
+
+  - name: ops
+    description: Operational tables written by the streaming risk engine and Spark.
+    schema: ops
+    tables:
+      - name: risk_decisions
+      - name: fraud_alerts
+      - name: stream_metrics_minute

@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: mart_transaction_risk
+    columns:
+      - name: transaction_id
+        tests: [unique, not_null]
+  - name: mart_daily_kpis
+    columns:
+      - name: date
+        tests: [unique, not_null]

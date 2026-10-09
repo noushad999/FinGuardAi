@@ -1,0 +1,205 @@
+{
+  "alert_budget": {
+    "rate": 0.01,
+    "k": 212,
+    "test_rows": 21152,
+    "test_fraud": 185
+  },
+  "models": {
+    "A_xgboost_supervised": {
+      "pr_auc": 0.8036191152062827,
+      "roc_auc": 0.9958658329240673,
+      "precision_at_212": 0.6650943396226415,
+      "recall_at_212": 0.7621621621621621,
+      "precision_at_100": 0.88,
+      "recall_at_500": 0.972972972972973,
+      "scenario_recall_at_budget": {
+        "abnormal_nighttime": {
+          "positives": 15,
+          "recall": 0.8
+        },
+        "device_sharing_ring": {
+          "positives": 32,
+          "recall": 0.78125
+        },
+        "failed_auth_then_success": {
+          "positives": 17,
+          "recall": 0.8235294117647058
+        },
+        "impossible_travel": {
+          "positives": 5,
+          "recall": 1.0
+        },
+        "mule_collection": {
+          "positives": 39,
+          "recall": 0.5897435897435898
+        },
+        "new_device_high_value": {
+          "positives": 8,
+          "recall": 0.875
+        },
+        "rapid_fund_movement": {
+          "positives": 10,
+          "recall": 0.7
+        },
+        "structuring": {
+          "positives": 14,
+          "recall": 0.7857142857142857
+        },
+        "sudden_high_value": {
+          "positives": 4,
+          "recall": 0.75
+        },
+        "suspicious_merchant": {
+          "positives": 9,
+          "recall": 1.0
+        },
+        "unusual_recipient_scam": {
+          "positives": 8,
+          "recall": 0.5
+        },
+        "velocity_attack": {
+          "positives": 24,
+          "recall": 0.875
+        }
+      }
+    },
+    "B_isolation_forest": {
+      "pr_auc": 0.36979199988957223,
+      "roc_auc": 0.9111146344513062,
+      "precision_at_212": 0.3490566037735849,
+      "recall_at_212": 0.4,
+      "precision_at_100": 0.55,
+      "recall_at_500": 0.4864864864864865,
+      "scenario_recall_at_budget": {
+        "abnormal_nighttime": {
+          "positives": 15,
+          "recall": 0.13333333333333333
+        },
+        "device_sharing_ring": {
+          "positives": 32,
+          "recall": 0.84375
+        },
+        "failed_auth_then_success": {
+          "positives": 17,
+          "recall": 0.8235294117647058
+        },
+        "impossible_travel": {
+          "positives": 5,
+          "recall": 0.6
+        },
+        "mule_collection": {
+          "positives": 39,
+          "recall": 0.05128205128205128
+        },
+        "new_device_high_value": {
+          "positives": 8,
+          "recall": 0.125
+        },
+        "rapid_fund_movement": {
+          "positives": 10,
+          "recall": 0.1
+        },
+        "structuring": {
+          "positives": 14,
+          "recall": 0.5
+        },
+        "sudden_high_value": {
+          "positives": 4,
+          "recall": 0.25
+        },
+        "suspicious_merchant": {
+          "positives": 9,
+          "recall": 0.0
+        },
+        "unusual_recipient_scam": {
+          "positives": 8,
+          "recall": 0.0
+        },
+        "velocity_attack": {
+          "positives": 24,
+          "recall": 0.6666666666666666
+        }
+      }
+    },
+    "C_behavioral_baseline": {
+      "pr_auc": 0.3002568822001808,
+      "roc_auc": 0.914606350519929,
+      "precision_at_212": 0.3113207547169811,
+      "recall_at_212": 0.3567567567567568,
+      "precision_at_100": 0.48,
+      "recall_at_500": 0.4540540540540541,
+      "scenario_recall_at_budget": {
+        "abnormal_nighttime": {
+          "positives": 15,
+          "recall": 0.13333333333333333
+        },
+        "device_sharing_ring": {
+          "positives": 32,
+          "recall": 0.40625
+        },
+        "failed_auth_then_success": {
+          "positives": 17,
+          "recall": 0.7647058823529411
+        },
+        "impossible_travel": {
+          "positives": 5,
+          "recall": 0.6
+        },
+        "mule_collection": {
+          "positives": 39,
+          "recall": 0.1282051282051282
+        },
+        "new_device_high_value": {
+          "positives": 8,
+          "recall": 0.625
+        },
+        "rapid_fund_movement": {
+          "positives": 10,
+          "recall": 0.3
+        },
+        "structuring": {
+          "positives": 14,
+          "recall": 0.35714285714285715
+        },
+        "sudden_high_value": {
+          "positives": 4,
+          "recall": 0.25
+        },
+        "suspicious_merchant": {
+          "positives": 9,
+          "recall": 0.2222222222222222
+        },
+        "unusual_recipient_scam": {
+          "positives": 8,
+          "recall": 0.25
+        },
+        "velocity_attack": {
+          "positives": 24,
+          "recall": 0.5
+        }
+      }
+    }
+  },
+  "overlap": {
+    "A_xgboost_supervised__B_isolation_forest": {
+      "alert_jaccard": 0.17777777777777778,
+      "fraud_caught_only_by_A_xgboost_supervised": 78,
+      "fraud_caught_only_by_B_isolation_forest": 11
+    },
+    "A_xgboost_supervised__C_behavioral_baseline": {
+      "alert_jaccard": 0.15217391304347827,
+      "fraud_caught_only_by_A_xgboost_supervised": 92,
+      "fraud_caught_only_by_C_behavioral_baseline": 17
+    },
+    "B_isolation_forest__C_behavioral_baseline": {
+      "alert_jaccard": 0.14905149051490515,
+      "fraud_caught_only_by_B_isolation_forest": 29,
+      "fraud_caught_only_by_C_behavioral_baseline": 21
+    }
+  },
+  "union_of_all_alerts": {
+    "alerts": 499,
+    "recall": 0.8756756756756757
+  }
+}

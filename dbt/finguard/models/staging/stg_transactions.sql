@@ -1,0 +1,27 @@
+-- Typed, lightly cleaned transactions. Grain: one row per transaction attempt.
+select
+    transaction_id,
+    event_time,
+    (event_time at time zone 'Asia/Dhaka')::date                        as event_date_local,
+    extract(hour from event_time at time zone 'Asia/Dhaka')::int        as event_hour_local,
+    customer_id,
+    sender_id,
+    receiver_id,
+    case when transaction_type = 'P2P' then receiver_id end            as receiver_customer_id,
+    merchant_id,
+    amount::numeric(14, 2)                                              as amount,
+    coalesce(fee, 0)::numeric(12, 2)                                    as fee,
+    transaction_type,
+    channel,
+    device_id,
+    district,
+    latitude,
+    longitude,
+    status,
+    status = 'SUCCESS'                                                  as is_success,
+    failure_reason,
+    balance_before,
+    balance_after,
+    case when transaction_type = 'CASH_IN' then 'CREDIT' else 'DEBIT' end as direction,
+    (metadata ->> 'pin_attempts')::int                                  as pin_attempts
+from {{ source('raw', 'transactions') }}
